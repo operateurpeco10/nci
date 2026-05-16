@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Vote Minimal",
+  title: "Grand jeu NCI",
   description:
     "Réponds plusieurs fois à la bonne question et tente de repartir avec 10 000 000 de francs.",
 };

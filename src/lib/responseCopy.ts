@@ -3,9 +3,9 @@
 export const RESPONSE_COPY = {
   ctaValidate: "Valider ma réponse",
   ctaAgain: "Répondre à nouveau",
-  modalHeadingPrefix: "Répondre :",
-  stepPack: "Étape 1 / 2 — Pack",
-  stepPayment: "Étape 2 / 2 — Paiement",
+  modalHeadingPrefix: "Réponse :",
+  stepPack: "Étape 1 / 2 - Choix du Pack",
+  stepPayment: "Étape 2 / 2 - Paiement",
   backToPacks: "Packs de réponses",
   packChooserTitle: "Choisissez votre pack de réponses",
   infoChances:

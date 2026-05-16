@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Check, Sparkles, TrendingUp, Crown, Info } from "lucide-react";
+import { RESPONSE_COPY, responseUnit } from "@/lib/responseCopy";
 import { VOTE_PACKS, formatPriceFcfa } from "@/lib/votePacks";
 import type { VotePack } from "@/types/digima";
 
@@ -36,7 +37,7 @@ export default function VotePackSelector({
               : "text-sm font-semibold text-white"
           }
         >
-          Choisissez votre pack de votes
+          {RESPONSE_COPY.packChooserTitle}
         </h3>
       </div>
 
@@ -76,7 +77,7 @@ export default function VotePackSelector({
                     {pack.votes.toLocaleString("fr-FR")}
                   </div>
                   <div className="text-[10px] text-zinc-500 dark:text-gray-400 sm:text-xs">
-                    {pack.votes === 1 ? "vote" : "votes"}
+                    {responseUnit(pack.votes)}
                   </div>
                 </div>
 
@@ -128,7 +129,7 @@ export default function VotePackSelector({
 
               <div className="mb-1 mt-5 w-full sm:mb-2 sm:mt-6">
                 <div className="text-xl font-bold tabular-nums text-white sm:text-3xl">{pack.votes.toLocaleString("fr-FR")}</div>
-                <div className="text-[10px] text-gray-400 sm:text-xs">{pack.votes === 1 ? "vote" : "votes"}</div>
+                <div className="text-[10px] text-gray-400 sm:text-xs">{responseUnit(pack.votes)}</div>
               </div>
 
               <div className="text-[11px] font-semibold tabular-nums leading-tight text-[var(--primary)] sm:text-sm">
@@ -158,7 +159,7 @@ export default function VotePackSelector({
             aria-hidden
           />
           <span>
-            Plus vous votez, plus vous avez des chances de remporter le gros lot.
+            {RESPONSE_COPY.infoChances}
           </span>
         </p>
       </div>

@@ -2,6 +2,7 @@
 
 import PaymentModal from "@/components/PaymentModal";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { RESPONSE_COPY, formatTotalResponses } from "@/lib/responseCopy";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const BASE_VOTES = [47, 38] as const;
@@ -14,7 +15,7 @@ const BAR_STYLES = [
   { color: "var(--nci-orange)", trackVar: "--bar-track-1" as const },
 ] as const;
 
-type View = "vote" | "vote_exit" | "results" | "results_exit";
+type View = "vote" | "results";
 
 export default function Home() {
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
@@ -88,8 +89,7 @@ export default function Home() {
         next[selectedChoice] += detail.nbVotes;
         return next;
       });
-      setView("vote_exit");
-      window.setTimeout(() => setView("results"), 350);
+      setView("results");
     },
     [selectedChoice],
   );
@@ -101,14 +101,8 @@ export default function Home() {
   const resetVote = useCallback(() => {
     setSelectedChoice(null);
     setPaymentOpen(false);
-    setView("results_exit");
-    window.setTimeout(() => setView("vote"), 300);
+    setView("vote");
   }, []);
-
-  const showVoting = view === "vote" || view === "vote_exit";
-  const votingFaded = view === "vote_exit";
-  const showResults = view === "results" || view === "results_exit";
-  const resultsFaded = view === "results_exit";
 
   return (
     <>
@@ -132,10 +126,8 @@ export default function Home() {
 
       <main className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-lg mx-auto px-6 py-12">
-          {showVoting && (
-            <div
-              className={`transition-opacity duration-300 ease-out ${votingFaded ? "opacity-0" : "opacity-100"}`}
-            >
+          {view === "vote" && (
+            <div>
               <div className="text-center">
                 <p className="text-base sm:text-lg leading-relaxed text-zinc-600 mb-8 max-w-md mx-auto fade-in fade-in-delay-1 dark:text-white/70">
                   Réponds plusieurs fois à la bonne question et tente de repartir
@@ -189,16 +181,14 @@ export default function Home() {
                   {ripples.map((r) => (
                     <Ripple key={r.id} size={r.size} />
                   ))}
-                  Voter
+                  {RESPONSE_COPY.ctaValidate}
                 </button>
               </div>
             </div>
           )}
 
-          {showResults && (
-            <div
-              className={`mt-10 space-y-5 transition-opacity duration-300 ease-out ${resultsFaded ? "opacity-0" : "opacity-100"} ${view === "results" ? "result-animate" : ""}`}
-            >
+          {view === "results" && (
+            <div className="space-y-5 result-animate">
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 text-center dark:text-white/25">
                 Résultats
               </p>
@@ -248,7 +238,7 @@ export default function Home() {
               <div className="glow-line my-6" />
 
               <p className="text-center text-xs text-zinc-500 tracking-wide dark:text-white/20">
-                {totalAll} votes au total
+                {formatTotalResponses(totalAll)}
               </p>
 
               <button
@@ -256,7 +246,7 @@ export default function Home() {
                 onClick={resetVote}
                 className="w-full py-3 rounded-xl border border-zinc-200 text-zinc-500 font-medium text-xs tracking-wide transition-all duration-300 hover:border-nci-navy/35 hover:text-zinc-700 dark:border-white/8 dark:text-white/30 dark:hover:border-nci-navy/40 dark:hover:text-white/50"
               >
-                Voter à nouveau
+                {RESPONSE_COPY.ctaAgain}
               </button>
             </div>
           )}

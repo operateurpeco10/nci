@@ -1,15 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { X, ShieldCheck, Heart, ChevronLeft, Mail } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { X, ShieldCheck, ChevronLeft, Mail } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import VotePackSelector from "./VotePackSelector";
+import { VoteSuccessOverlay } from "./VoteSuccessOverlay";
 import { WalletOperatorHints } from "./WalletOperatorHints";
 import { VOTE_PACKS } from "@/lib/votePacks";
 import { getWalletDvPassFlow, PAYMENT_WALLETS } from "@/lib/paymentWallets";
+import { RESPONSE_COPY, responseUnit } from "@/lib/responseCopy";
 import type { VotePack } from "@/types/digima";
 
-/** Réponse `/api/payment/initiate` — démo locale sans redirection Paystack */
+/** Réponse `/api/payment/initiate` — démo locale sans redirection externe */
 type InitiateJson = {
   success?: boolean;
   authorizationUrl?: string;
@@ -25,7 +28,7 @@ export interface PaymentModalProps {
   coupleCode?: string;
   coupleImage?: string;
   sharePagePath?: string;
-  /** Appelé après succès en mode démo (`demo: true` sans URL Paystack) — ex. VoteMinimal */
+  /** Appelé après succès en mode démo (`demo: true` sans URL de redirection) — ex. VoteMinimal */
   onDemoPaymentComplete?: (detail: { nbVotes: number }) => void;
 }
 
@@ -68,10 +71,14 @@ export default function PaymentModal({
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [paystackActive, setPaystackActive] = useState(false);
+  const [paymentActive, setPaymentActive] = useState(false);
   const [dvPassActive, setDvPassActive] = useState(false);
   const [votesClosed, setVotesClosed] = useState(false);
   const [paymentStep, setPaymentStep] = useState<1 | 2>(1);
+  const [successPayload, setSuccessPayload] = useState<{
+    votes: number;
+    name: string;
+  } | null>(null);
   const formSectionRef = useRef<HTMLDivElement>(null);
 
   const totalAmount = selectedPack.price_fcfa;
@@ -94,19 +101,20 @@ export default function PaymentModal({
     setPhoneNumber("");
     setOtpCode("");
     setSelectedWallet(null);
+    setSuccessPayload(null);
     setVotesClosed(false);
     fetch("/api/payment/options", { cache: "no-store" })
       .then((r) => r.json())
-      .then((d: { paystackActive?: boolean; votesClosed?: boolean; dvPassActive?: boolean }) => {
+      .then((d: { paymentActive?: boolean; votesClosed?: boolean; dvPassActive?: boolean }) => {
         if (!cancelled) {
-          setPaystackActive(d.paystackActive === true);
+          setPaymentActive(d.paymentActive === true);
           setDvPassActive(d.dvPassActive === true);
           setVotesClosed(d.votesClosed === true);
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setPaystackActive(false);
+          setPaymentActive(false);
           setDvPassActive(false);
           setVotesClosed(false);
         }
@@ -119,8 +127,19 @@ export default function PaymentModal({
   useEffect(() => {
     if (!isOpen) {
       setPaymentStep(1);
+      setSuccessPayload(null);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!successPayload || !onDemoPaymentComplete) return;
+    const timer = window.setTimeout(() => {
+      onDemoPaymentComplete({ nbVotes: successPayload.votes });
+      setSuccessPayload(null);
+      onClose();
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, [successPayload, onDemoPaymentComplete, onClose]);
 
   if (!isOpen) return null;
 
@@ -134,11 +153,11 @@ export default function PaymentModal({
     setError(null);
 
     if (votesClosed) {
-      setError("La période de vote est terminée.");
+      setError(RESPONSE_COPY.paymentPeriodEnded);
       return;
     }
 
-    if (!paystackActive) {
+    if (!paymentActive) {
       setError("Le paiement en ligne n'est pas encore configuré.");
       return;
     }
@@ -150,7 +169,7 @@ export default function PaymentModal({
 
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail.includes("@") || trimmedEmail.length < 5) {
-      setError("Renseignez une adresse e-mail valide (requise par Paystack).");
+      setError("Renseignez une adresse e-mail valide.");
       return;
     }
 
@@ -202,12 +221,11 @@ export default function PaymentModal({
         }
         if (data.demo === true && onDemoPaymentComplete) {
           const n = typeof data.nbVotes === "number" ? data.nbVotes : voteCount;
-          onDemoPaymentComplete({ nbVotes: n });
-          onClose();
+          setSuccessPayload({ votes: n, name: displayName });
           setLoading(false);
           return;
         }
-        setError("Réponse Paystack incomplète (URL de paiement manquante).");
+        setError("Réponse de paiement incomplète (URL manquante).");
       } else {
         setError(data.error || "Erreur lors du paiement");
       }
@@ -231,6 +249,11 @@ export default function PaymentModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4 py-6" role="presentation">
       <div className="payment-modal-surface relative max-h-[92vh] w-full max-w-lg overflow-y-auto overflow-x-hidden rounded-2xl border border-zinc-200/90 bg-zinc-50 shadow-xl dark:border-white/5 dark:bg-[#0a0a0a] lg:max-w-xl">
+        <AnimatePresence>
+          {successPayload && (
+            <VoteSuccessOverlay votes={successPayload.votes} name={successPayload.name} />
+          )}
+        </AnimatePresence>
         <div className="space-y-5 p-6">
           <div className="flex items-center justify-between gap-3 border-b border-zinc-200/90 pb-4 dark:border-white/5">
             <div className="flex min-w-0 items-center gap-2.5">
@@ -247,7 +270,8 @@ export default function PaymentModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="cursor-pointer rounded-xl border border-zinc-200/90 bg-white/90 p-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10"
+                disabled={Boolean(successPayload)}
+                className="cursor-pointer rounded-xl border border-zinc-200/90 bg-white/90 p-1.5 text-zinc-600 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10"
                 aria-label="Fermer"
               >
                 <X className="h-4 w-4" aria-hidden />
@@ -256,21 +280,18 @@ export default function PaymentModal({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 dark:border-white/12 dark:bg-white/[0.06]">
-              {coupleImage ? (
+            {coupleImage ? (
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100 dark:border-white/12 dark:bg-white/[0.06]">
                 <Image src={coupleImage} alt={displayName} fill className="object-cover" sizes="44px" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center">
-                  <Heart className="h-5 w-5 text-[var(--nci-navy)]" aria-hidden />
-                </div>
-              )}
-            </div>
+              </div>
+            ) : null}
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500 dark:text-white/35">
-                {paymentStep === 1 ? "Étape 1 / 2 — Pack" : "Étape 2 / 2 — Paiement"}
+                {paymentStep === 1 ? RESPONSE_COPY.stepPack : RESPONSE_COPY.stepPayment}
               </p>
               <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
-                Voter pour <span className="text-[var(--nci-navy)] dark:text-[#1e4a7a]">{displayName}</span>
+                {RESPONSE_COPY.modalHeadingPrefix}{" "}
+                <span className="text-[var(--nci-navy)] dark:text-[#5b9de0]">{displayName}</span>
               </h2>
               {displayCode && (
                 <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-white/45">
@@ -285,14 +306,13 @@ export default function PaymentModal({
               role="status"
               className="rounded-xl border border-red-200 bg-red-600 px-3 py-3 text-center text-sm font-semibold leading-snug text-white dark:border-red-800/40 dark:bg-[#d42838] sm:text-[15px]"
             >
-              Les votes sont clos. Le classement reste consultable sur la page Voter.
+              {RESPONSE_COPY.periodClosed}
             </div>
           )}
 
-          {!paystackActive && !votesClosed && (
+          {!paymentActive && !votesClosed && (
             <p className="rounded-xl border border-amber-200/90 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
-              Paiement indisponible : configurez <span className="font-mono">PAYSTACK_SECRET_KEY</span> sur le
-              serveur.
+              Le paiement en ligne est momentanément indisponible.
             </p>
           )}
 
@@ -325,27 +345,6 @@ export default function PaymentModal({
                 />
               </div>
 
-              <div
-                className={`choice-card flex items-center justify-between rounded-xl px-4 py-3 ${
-                  votesClosed ? "pointer-events-none opacity-45" : ""
-                }`}
-              >
-                <div>
-                  <p className="text-xs text-zinc-500 dark:text-gray-400">Montant total</p>
-                  <p className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-white">
-                    {totalAmount.toLocaleString("fr-FR")}{" "}
-                    <span className="align-top text-sm font-medium text-zinc-500 dark:text-white/50">FCFA</span>
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-gray-400">
-                    {voteCount.toLocaleString("fr-FR")} vote{voteCount > 1 ? "s" : ""}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 text-xs font-medium text-[var(--nci-navy)] dark:text-[#1e4a7a]">
-                  <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-                  <span>Paystack</span>
-                </div>
-              </div>
-
               <button
                 type="button"
                 disabled={votesClosed}
@@ -355,7 +354,7 @@ export default function PaymentModal({
                 }}
                 className="pay-modal-primary w-full cursor-pointer rounded-xl bg-[var(--nci-navy)] px-4 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-[0.96] disabled:cursor-not-allowed disabled:opacity-40 dark:disabled:opacity-[0.15]"
               >
-                Continuer vers le paiement
+                {RESPONSE_COPY.continuePayment}
               </button>
             </>
           )}
@@ -371,15 +370,15 @@ export default function PaymentModal({
                   className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-left text-xs font-medium leading-snug text-zinc-800 transition-colors hover:bg-zinc-50 dark:border-white/12 dark:bg-white/[0.06] dark:text-white dark:hover:bg-white/10 sm:w-auto sm:justify-start"
                 >
                   <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
-                  <span>Packs de vote</span>
+                  <span>{RESPONSE_COPY.backToPacks}</span>
                 </button>
                 <span className="text-xs text-zinc-500 dark:text-gray-400">
-                  {voteCount.toLocaleString("fr-FR")} vote{voteCount > 1 ? "s" : ""} ·{" "}
+                  {voteCount.toLocaleString("fr-FR")} {responseUnit(voteCount)} ·{" "}
                   <span className="font-semibold text-zinc-900 dark:text-white">
                     {totalAmount.toLocaleString("fr-FR")} FCFA
                   </span>
                 </span>
-                <span className="ml-auto hidden items-center gap-1 text-[11px] font-medium text-[var(--nci-navy)]/90 dark:text-[#4a6fa5]/95 sm:inline-flex">
+                <span className="ml-auto hidden items-center gap-1 text-[11px] font-medium text-[var(--nci-navy)]/90 dark:text-[#6b9fd6]/95 sm:inline-flex">
                   <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
                   Paiement sécurisé
                 </span>
@@ -430,9 +429,9 @@ export default function PaymentModal({
                   <WalletOperatorHints walletId={selectedWallet} dvPassActive={dvPassActive} />
 
                   <p className="text-[11px] leading-relaxed text-zinc-600 dark:text-gray-300">
-                    Paiement via <strong className="text-zinc-900 dark:text-white">Paystack</strong> (carte bancaire ou
-                    Mobile Money selon l&apos;opérateur sélectionné), montant en{" "}
-                    <strong className="text-zinc-900 dark:text-white">FCFA</strong>.
+                    Montant réglé en{" "}
+                    <strong className="text-zinc-900 dark:text-white">FCFA</strong> via Mobile Money selon
+                    l&apos;opérateur sélectionné.
                   </p>
 
                   <div className="space-y-1">
@@ -517,11 +516,11 @@ export default function PaymentModal({
                   <button
                     type="button"
                     onClick={handleConfirm}
-                    disabled={loading || votesClosed || !paystackActive}
+                    disabled={loading || votesClosed || !paymentActive}
                     className="pay-modal-primary mt-1 w-full cursor-pointer rounded-xl bg-[var(--nci-navy)] py-2.5 text-xs font-semibold text-white hover:opacity-[0.96] disabled:cursor-not-allowed disabled:opacity-45 dark:disabled:opacity-[0.15]"
                   >
                     {votesClosed
-                      ? "Votes clos"
+                      ? RESPONSE_COPY.responsesClosed
                       : loading
                         ? "Préparation du paiement..."
                         : `Confirmer et payer ${totalAmount.toLocaleString("fr-FR")} FCFA`}
@@ -530,11 +529,11 @@ export default function PaymentModal({
               )}
 
               <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-gray-500">
-                Après le paiement, vous reviendrez sur le site et vos votes seront comptabilisés une fois la transaction
-                confirmée.
+                Après le paiement, vous reviendrez sur le site et vos réponses seront comptabilisées une fois la
+                transaction confirmée.
               </p>
               <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-gray-500">
-                En poursuivant, vous acceptez que vos coordonnées soient utilisées pour le suivi des votes et pour vous
+                En poursuivant, vous acceptez que vos coordonnées soient utilisées pour le suivi des réponses et pour vous
                 contacter en cas de récompense des meilleurs votants.
               </p>
             </>

@@ -11,10 +11,7 @@ interface PaymentRequest {
   locale?: string;
 }
 
-/**
- * Démo locale : succès sans URL Paystack (`demo: true`).
- * Brancher Paystack plus tard en réutilisant la logique voting-indgo.
- */
+/** Démo locale : succès sans URL de redirection (`demo: true`). */
 export async function POST(request: Request) {
   let body: PaymentRequest = {};
   try {

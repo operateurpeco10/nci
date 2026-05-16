@@ -3,8 +3,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --nci-navy: #0b1f3a;
-  --nci-navy-hover: #142d52;
+  --nci-navy: #144285;
+  --nci-navy-hover: #1a5299;
   --nci-green: #22c55e;
   --nci-orange: #f97316;
   --cc-border: rgba(24, 24, 27, 0.1);
@@ -12,7 +12,7 @@
   --cc-hover-border: rgba(24, 24, 27, 0.16);
   --cc-hover-bg: #ffffff;
   --radio-border: rgba(24, 24, 27, 0.22);
-  --glow-mid: rgba(11, 31, 58, 0.2);
+  --glow-mid: rgba(20, 66, 133, 0.2);
   --bar-track-0: rgba(34, 197, 94, 0.14);
   --bar-track-1: rgba(249, 115, 22, 0.14);
 }
@@ -23,7 +23,7 @@ html.dark {
   --cc-hover-border: rgba(255, 255, 255, 0.12);
   --cc-hover-bg: rgba(255, 255, 255, 0.04);
   --radio-border: rgba(255, 255, 255, 0.15);
-  --glow-mid: rgba(11, 31, 58, 0.35);
+  --glow-mid: rgba(20, 66, 133, 0.35);
   --bar-track-0: rgba(34, 197, 94, 0.08);
   --bar-track-1: rgba(249, 115, 22, 0.08);
 }
@@ -61,6 +61,40 @@ html.dark body {
 }
 
 /* Option 1 : A = vert (Café), B = orange (Thé) */
+.choice-card--cafe {
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+.choice-card--cafe:hover {
+  border-color: var(--nci-green);
+  background: var(--cc-hover-bg);
+}
+
+.choice-card--the {
+  border-color: rgba(249, 115, 22, 0.45);
+}
+
+.choice-card--the:hover {
+  border-color: var(--nci-orange);
+  background: var(--cc-hover-bg);
+}
+
+html.dark .choice-card--cafe {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+html.dark .choice-card--the {
+  border-color: rgba(249, 115, 22, 0.35);
+}
+
+.choice-card--cafe .radio-dot {
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.choice-card--the .radio-dot {
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
 .choice-card--cafe.selected {
   border-color: var(--nci-green);
   background: rgba(34, 197, 94, 0.1);
@@ -146,7 +180,7 @@ html.dark .choice-card--the.selected {
 .vote-btn:not(:disabled):hover {
   transform: translateY(-1px);
   background: var(--nci-navy-hover);
-  box-shadow: 0 8px 30px rgba(11, 31, 58, 0.35);
+  box-shadow: 0 8px 30px rgba(20, 66, 133, 0.35);
 }
 
 .vote-btn:not(:disabled):active {
@@ -267,7 +301,7 @@ html:not(.dark) .vote-btn .ripple {
 .payment-modal-surface .pay-modal-primary:not(:disabled):hover {
   transform: translateY(-1px);
   background: var(--nci-navy-hover);
-  box-shadow: 0 8px 30px rgba(11, 31, 58, 0.35);
+  box-shadow: 0 8px 30px rgba(20, 66, 133, 0.35);
 }
 
 .payment-modal-surface .pay-modal-primary:not(:disabled):active {

@@ -11,7 +11,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Grand jeu NCI",
   description:
-    "Réponds plusieurs fois à la bonne question et tente de repartir avec 10 000 000 de francs.",
+    "Question de la semaine sur NCI. 10 MILLIONS à se partager.",
   icons: {
     icon: "/icon.png",
     apple: "/icon.png",

@@ -130,14 +130,16 @@ export default function Home() {
                     priority
                   />
                 </div>
-                <p className="fade-in fade-in-delay-1 mx-auto mb-6 max-w-md text-base leading-relaxed text-zinc-600 sm:mb-8 sm:text-lg dark:text-white/70">
-                  Réponds plusieurs fois à la bonne question et tente de repartir
-                  avec{" "}
-                  <span className="font-semibold tabular-nums text-nci-orange">
-                    10&nbsp;000&nbsp;000
-                  </span>{" "}
-                  de francs.
-                </p>
+                <div className="fade-in fade-in-delay-1 mx-auto mb-6 max-w-md space-y-3 text-center sm:mb-8">
+                  <p className="text-sm font-medium leading-snug text-zinc-600 sm:text-base dark:text-white/75">
+                    Question de la semaine sur NCI.
+                  </p>
+                  <p className="acroche-blink text-xl font-semibold leading-snug text-zinc-800 sm:text-2xl dark:text-white/90">
+                    <span className="font-semibold text-nci-orange">10&nbsp;MILLIONS</span>
+                    {" "}
+                    à se partager.
+                  </p>
+                </div>
                 <h1 className="text-2xl sm:text-3xl font-semibold leading-snug tracking-tight text-zinc-900 fade-in fade-in-delay-2 dark:text-white/90">
                   Café ou Thé ?
                 </h1>

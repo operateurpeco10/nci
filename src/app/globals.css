@@ -281,6 +281,27 @@ html:not(.dark) .vote-btn .ripple {
   opacity: 0;
 }
 
+@keyframes accroche-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.38;
+  }
+}
+
+.acroche-blink {
+  animation: accroche-blink 1.35s ease-in-out infinite;
+  animation-delay: 0.85s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .acroche-blink {
+    animation: none;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

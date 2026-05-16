@@ -107,34 +107,30 @@ export default function Home() {
 
   return (
     <>
-      <header className="w-full border-b border-zinc-200/90 dark:border-white/5">
-        <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-between gap-3">
-          <div className="relative h-9 w-[min(200px,52vw)] shrink-0">
-            <Image
-              src="/images/logo.png"
-              alt="Vote Minimal"
-              fill
-              className="object-contain object-left"
-              sizes="200px"
-              priority
-            />
-          </div>
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <ThemeSwitch />
-            <span className="hidden text-[11px] tracking-wider uppercase text-zinc-500 font-medium dark:text-white/20 sm:inline">
-              Sondage live
-            </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-nci-green animate-pulse" />
-          </div>
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pr-[max(0.75rem,env(safe-area-inset-right))]"
+      >
+        <div className="pointer-events-auto rounded-full border border-zinc-200/90 bg-white/90 p-1 shadow-lg shadow-zinc-900/10 backdrop-blur-sm dark:border-white/10 dark:bg-[var(--dark-surface-bg)]/90 dark:shadow-black/40">
+          <ThemeSwitch />
         </div>
-      </header>
+      </div>
 
-      <main className="flex-1 flex items-center justify-center">
-        <div className="w-full max-w-lg mx-auto px-6 py-12">
+      <main className="flex flex-1 items-center justify-center pt-[max(0.5rem,env(safe-area-inset-top))]">
+        <div className="mx-auto w-full max-w-lg px-6 py-10 sm:py-12">
           {view === "vote" && (
             <div>
               <div className="text-center">
-                <p className="text-base sm:text-lg leading-relaxed text-zinc-600 mb-8 max-w-md mx-auto fade-in fade-in-delay-1 dark:text-white/70">
+                <div className="relative mx-auto mb-6 h-12 w-[min(240px,75vw)] fade-in sm:h-14 sm:w-[min(280px,78vw)]">
+                  <Image
+                    src="/images/logo.png"
+                    alt="Vote Minimal"
+                    fill
+                    className="object-contain object-center"
+                    sizes="(max-width: 640px) 75vw, 280px"
+                    priority
+                  />
+                </div>
+                <p className="fade-in fade-in-delay-1 text-base leading-relaxed text-zinc-600 sm:text-lg mb-8 max-w-md mx-auto dark:text-white/70">
                   Réponds plusieurs fois à la bonne question et tente de repartir
                   avec{" "}
                   <span className="font-semibold tabular-nums text-nci-orange">
@@ -194,6 +190,15 @@ export default function Home() {
 
           {view === "results" && (
             <div className="space-y-5 result-animate">
+              <div className="relative mx-auto h-10 w-[min(200px,65vw)] sm:h-11">
+                <Image
+                  src="/images/logo.png"
+                  alt="Vote Minimal"
+                  fill
+                  className="object-contain object-center"
+                  sizes="200px"
+                />
+              </div>
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 text-center dark:text-white/25">
                 Résultats
               </p>

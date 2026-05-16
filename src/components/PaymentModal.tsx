@@ -248,7 +248,7 @@ export default function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4 py-6" role="presentation">
-      <div className="payment-modal-surface relative max-h-[92vh] w-full max-w-lg overflow-y-auto overflow-x-hidden rounded-2xl border border-zinc-200/90 bg-zinc-50 shadow-xl dark:border-white/5 dark:bg-[#0a0a0a] lg:max-w-xl">
+      <div className="payment-modal-surface relative max-h-[92vh] w-full max-w-lg overflow-y-auto overflow-x-hidden rounded-2xl border border-zinc-200/90 bg-zinc-50 shadow-xl dark:border-white/5 dark:bg-[var(--dark-surface-bg)] lg:max-w-xl">
         <AnimatePresence>
           {successPayload && (
             <VoteSuccessOverlay votes={successPayload.votes} name={successPayload.name} />
@@ -374,7 +374,7 @@ export default function PaymentModal({
                 </button>
                 <span className="text-xs text-zinc-500 dark:text-gray-400">
                   {voteCount.toLocaleString("fr-FR")} {responseUnit(voteCount)} ·{" "}
-                  <span className="font-semibold text-zinc-900 dark:text-white">
+                  <span className="font-semibold text-price-blue">
                     {totalAmount.toLocaleString("fr-FR")} FCFA
                   </span>
                 </span>
@@ -430,7 +430,7 @@ export default function PaymentModal({
 
                   <p className="text-[11px] leading-relaxed text-zinc-600 dark:text-gray-300">
                     Montant réglé en{" "}
-                    <strong className="text-zinc-900 dark:text-white">FCFA</strong> via Mobile Money selon
+                    <strong className="text-price-blue">FCFA</strong> via Mobile Money selon
                     l&apos;opérateur sélectionné.
                   </p>
 

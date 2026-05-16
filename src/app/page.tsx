@@ -3,6 +3,7 @@
 import PaymentModal from "@/components/PaymentModal";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { RESPONSE_COPY, formatTotalResponses } from "@/lib/responseCopy";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const BASE_VOTES = [47, 38] as const;
@@ -108,11 +109,15 @@ export default function Home() {
     <>
       <header className="w-full border-b border-zinc-200/90 dark:border-white/5">
         <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-2 h-2 shrink-0 rounded-full bg-nci-navy" />
-            <span className="text-sm font-semibold tracking-wide text-zinc-800 dark:text-white/80 truncate">
-              VoteMinimal
-            </span>
+          <div className="relative h-9 w-[min(200px,52vw)] shrink-0">
+            <Image
+              src="/images/logo.png"
+              alt="Vote Minimal"
+              fill
+              className="object-contain object-left"
+              sizes="200px"
+              priority
+            />
           </div>
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <ThemeSwitch />

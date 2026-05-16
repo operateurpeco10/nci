@@ -7,6 +7,7 @@
   --nci-navy-hover: #1a5299;
   --nci-green: #22c55e;
   --nci-orange: #f97316;
+  --price-blue: #569bff;
   --cc-border: rgba(24, 24, 27, 0.1);
   --cc-bg: rgba(255, 255, 255, 0.78);
   --cc-hover-border: rgba(24, 24, 27, 0.16);
@@ -18,6 +19,9 @@
 }
 
 html.dark {
+  /* Fond sombre type « bleu marine » (dérivé du NCI), pas noir pur */
+  --dark-page-bg: #0a1628;
+  --dark-surface-bg: #0e2038;
   --cc-border: rgba(255, 255, 255, 0.06);
   --cc-bg: rgba(255, 255, 255, 0.02);
   --cc-hover-border: rgba(255, 255, 255, 0.12);
@@ -33,6 +37,7 @@ html.dark {
   --color-nci-navy: var(--nci-navy);
   --color-nci-green: var(--nci-green);
   --color-nci-orange: var(--nci-orange);
+  --color-price-blue: var(--price-blue);
 }
 
 body {
@@ -45,7 +50,7 @@ body {
 }
 
 html.dark body {
-  background: #0a0a0a;
+  background: var(--dark-page-bg);
   color: #ffffff;
 }
 

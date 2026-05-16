@@ -81,7 +81,7 @@ export default function VotePackSelector({
                   </div>
                 </div>
 
-                <div className="text-[11px] font-semibold tabular-nums leading-tight text-[var(--nci-navy)] sm:text-sm">
+                <div className="text-[11px] font-semibold tabular-nums leading-tight text-price-blue sm:text-sm">
                   {formatPriceFcfa(pack.price_fcfa)}
                 </div>
 
@@ -132,7 +132,7 @@ export default function VotePackSelector({
                 <div className="text-[10px] text-gray-400 sm:text-xs">{responseUnit(pack.votes)}</div>
               </div>
 
-              <div className="text-[11px] font-semibold tabular-nums leading-tight text-[var(--primary)] sm:text-sm">
+              <div className="text-[11px] font-semibold tabular-nums leading-tight text-price-blue sm:text-sm">
                 {formatPriceFcfa(pack.price_fcfa)}
               </div>
 

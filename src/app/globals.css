@@ -1,26 +1,226 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --vote-blue: #3b82f6;
+  --vote-green: #22c55e;
+  --vote-orange: #f97316;
+  --cc-border: rgba(24, 24, 27, 0.1);
+  --cc-bg: rgba(255, 255, 255, 0.78);
+  --cc-hover-border: rgba(24, 24, 27, 0.16);
+  --cc-hover-bg: #ffffff;
+  --cc-select-bg: rgba(59, 130, 246, 0.1);
+  --cc-select-shadow: 0 0 36px rgba(59, 130, 246, 0.1);
+  --radio-border: rgba(24, 24, 27, 0.22);
+  --glow-mid: rgba(59, 130, 246, 0.22);
+  --bar-track-0: rgba(34, 197, 94, 0.14);
+  --bar-track-1: rgba(249, 115, 22, 0.14);
+}
+
+html.dark {
+  --cc-border: rgba(255, 255, 255, 0.06);
+  --cc-bg: rgba(255, 255, 255, 0.02);
+  --cc-hover-border: rgba(255, 255, 255, 0.12);
+  --cc-hover-bg: rgba(255, 255, 255, 0.04);
+  --cc-select-bg: rgba(59, 130, 246, 0.15);
+  --cc-select-shadow: 0 0 40px rgba(59, 130, 246, 0.06);
+  --radio-border: rgba(255, 255, 255, 0.15);
+  --glow-mid: rgba(59, 130, 246, 0.15);
+  --bar-track-0: rgba(34, 197, 94, 0.08);
+  --bar-track-1: rgba(249, 115, 22, 0.08);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background: #f4f4f5;
+  color: #18181b;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+html.dark body {
+  background: #0a0a0a;
+  color: #ffffff;
+}
+
+.choice-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid var(--cc-border);
+  background: var(--cc-bg);
+}
+
+.choice-card:hover {
+  border-color: var(--cc-hover-border);
+  background: var(--cc-hover-bg);
+}
+
+.choice-card.selected {
+  border-color: var(--vote-blue);
+  background: var(--cc-select-bg);
+  box-shadow: var(--cc-select-shadow);
+}
+
+.choice-card .radio-dot {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--radio-border);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.choice-card.selected .radio-dot {
+  border-color: var(--vote-blue);
+}
+
+.choice-card.selected .radio-dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 8px;
+  height: 8px;
+  background: var(--vote-blue);
+  border-radius: 50%;
+  animation: dotIn 0.25s ease forwards;
+}
+
+@keyframes dotIn {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.vote-btn {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.vote-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.25);
+}
+
+.vote-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.vote-btn:disabled {
+  cursor: not-allowed;
+}
+
+.vote-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0);
+  animation: rippleAnim 0.6s ease-out;
+  pointer-events: none;
+}
+
+html:not(.dark) .vote-btn .ripple {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes rippleAnim {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.fade-in-delay-1 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+.fade-in-delay-2 {
+  animation-delay: 0.25s;
+  opacity: 0;
+}
+
+.fade-in-delay-3 {
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.fade-in-delay-4 {
+  animation-delay: 0.55s;
+  opacity: 0;
+}
+
+.fade-in-delay-5 {
+  animation-delay: 0.7s;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-bar {
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-animate {
+  animation: slideUp 0.6s ease forwards;
+}
+
+.glow-line {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--glow-mid),
+    transparent
+  );
+}
+
+.payment-modal-surface .pay-modal-primary:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.25);
+}
+
+.payment-modal-surface .pay-modal-primary:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.payment-modal-surface .pay-modal-primary {
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease;
 }

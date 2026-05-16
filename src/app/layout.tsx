@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: "Grand jeu NCI",
   description:
     "Réponds plusieurs fois à la bonne question et tente de repartir avec 10 000 000 de francs.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({

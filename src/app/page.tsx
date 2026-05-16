@@ -120,13 +120,13 @@ export default function Home() {
           {view === "vote" && (
             <div>
               <div className="text-center">
-                <div className="relative mx-auto mb-6 h-12 w-[min(240px,75vw)] fade-in sm:h-14 sm:w-[min(280px,78vw)]">
+                <div className="relative mx-auto mb-6 h-16 w-[min(300px,82vw)] fade-in sm:h-20 sm:w-[min(360px,88vw)]">
                   <Image
-                    src="/images/logo.png"
-                    alt="Vote Minimal"
+                    src="/images/logo_nci.png"
+                    alt="NCI"
                     fill
                     className="object-contain object-center"
-                    sizes="(max-width: 640px) 75vw, 280px"
+                    sizes="(max-width: 640px) 82vw, 360px"
                     priority
                   />
                 </div>
@@ -190,13 +190,13 @@ export default function Home() {
 
           {view === "results" && (
             <div className="space-y-5 result-animate">
-              <div className="relative mx-auto h-10 w-[min(200px,65vw)] sm:h-11">
+              <div className="relative mx-auto h-14 w-[min(260px,72vw)] sm:h-16 sm:w-[min(300px,75vw)]">
                 <Image
-                  src="/images/logo.png"
-                  alt="Vote Minimal"
+                  src="/images/logo_nci.png"
+                  alt="NCI"
                   fill
                   className="object-contain object-center"
-                  sizes="200px"
+                  sizes="(max-width: 640px) 72vw, 300px"
                 />
               </div>
               <p className="text-xs tracking-[0.25em] uppercase text-zinc-500 text-center dark:text-white/25">
@@ -264,20 +264,10 @@ export default function Home() {
       </main>
 
       <footer className="w-full border-t border-zinc-200/90 dark:border-white/5">
-        <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="mx-auto max-w-lg px-6 py-4 text-center">
           <span className="text-[11px] text-zinc-400 tracking-wide dark:text-white/15">
-            © 2025 VoteMinimal
+            © 2025 Grand jeu NCI
           </span>
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] text-zinc-400 tracking-wide dark:text-white/15">
-              Propulsé avec
-            </span>
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-nci-navy" />
-              <div className="w-2 h-2 rounded-full bg-nci-green" />
-              <div className="w-2 h-2 rounded-full bg-nci-orange" />
-            </div>
-          </div>
         </div>
       </footer>
 

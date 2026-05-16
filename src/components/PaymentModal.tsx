@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence } from "framer-motion";
-import { X, ShieldCheck, ChevronLeft, Mail } from "lucide-react";
+import { X, ShieldCheck, ChevronLeft } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import VotePackSelector from "./VotePackSelector";
 import { VoteSuccessOverlay } from "./VoteSuccessOverlay";
@@ -65,7 +65,6 @@ export default function PaymentModal({
   onDemoPaymentComplete,
 }: PaymentModalProps) {
   const [selectedPack, setSelectedPack] = useState<VotePack>(VOTE_PACKS[0]);
-  const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
@@ -97,7 +96,6 @@ export default function PaymentModal({
     let cancelled = false;
     setSelectedPack(VOTE_PACKS[0]);
     setPaymentStep(1);
-    setEmail("");
     setPhoneNumber("");
     setOtpCode("");
     setSelectedWallet(null);
@@ -167,12 +165,6 @@ export default function PaymentModal({
       return;
     }
 
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail.includes("@") || trimmedEmail.length < 5) {
-      setError("Renseignez une adresse e-mail valide.");
-      return;
-    }
-
     const phone = phoneNumber.replace(/\D/g, "");
     if (phone.length < 8) {
       setError("Renseignez un numéro de téléphone mobile valide.");
@@ -199,7 +191,6 @@ export default function PaymentModal({
           voteCode: coupleCode,
           nbVotes: voteCount,
           packId: selectedPack.id,
-          emailVotant: trimmedEmail,
           telephoneVotant: phoneNumber.trim(),
           otpCode: needsOtp ? otpCode.trim() || undefined : undefined,
           paiementVia: selectedWallet,
@@ -256,11 +247,14 @@ export default function PaymentModal({
         </AnimatePresence>
         <div className="space-y-5 p-6">
           <div className="flex items-center justify-between gap-3 border-b border-zinc-200/90 pb-4 dark:border-white/5">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <div className="h-2 w-2 shrink-0 rounded-full bg-[var(--nci-navy)]" />
-              <span className="truncate text-sm font-semibold tracking-wide text-zinc-800 dark:text-white/80">
-                DIGIMA
-              </span>
+            <div className="relative h-11 w-[min(220px,55vw)] shrink-0">
+              <Image
+                src="/images/logo_nci.png"
+                alt="NCI"
+                fill
+                className="object-contain object-left"
+                sizes="220px"
+              />
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <span className="hidden text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-white/20 sm:inline">
@@ -322,12 +316,12 @@ export default function PaymentModal({
           >
             <div
               className={`h-1 flex-1 rounded-full transition-colors ${
-                paymentStep === 1 ? "bg-[var(--nci-navy)]" : "bg-[var(--nci-navy)]/40 dark:bg-[var(--nci-navy)]/35"
+                paymentStep === 1 ? "bg-nci-orange" : "bg-nci-orange/45 dark:bg-nci-orange/35"
               }`}
             />
             <div
               className={`h-1 flex-1 rounded-full transition-colors ${
-                paymentStep === 2 ? "bg-[var(--nci-navy)]" : "bg-zinc-200 dark:bg-white/12"
+                paymentStep === 2 ? "bg-nci-orange" : "bg-zinc-200 dark:bg-white/12"
               }`}
             />
           </div>
@@ -393,7 +387,7 @@ export default function PaymentModal({
                       type="button"
                       className={`flex cursor-pointer items-center gap-2 rounded-2xl border px-3 py-2.5 text-left text-xs transition-colors ${
                         selectedWallet === wallet.id
-                          ? "border-[var(--nci-navy)] bg-[var(--nci-navy)]/10 dark:border-[var(--nci-navy)]/60 dark:bg-[var(--nci-navy)]/15"
+                          ? "border-nci-orange bg-nci-orange/15 shadow-sm shadow-nci-orange/15 dark:border-nci-orange/85 dark:bg-nci-orange/22"
                           : "border-zinc-200 bg-white hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/10"
                       }`}
                       onClick={() => {
@@ -427,31 +421,6 @@ export default function PaymentModal({
                   }`}
                 >
                   <WalletOperatorHints walletId={selectedWallet} dvPassActive={dvPassActive} />
-
-                  <p className="text-[11px] leading-relaxed text-zinc-600 dark:text-gray-300">
-                    Montant réglé en{" "}
-                    <strong className="text-price-blue">FCFA</strong> via Mobile Money selon
-                    l&apos;opérateur sélectionné.
-                  </p>
-
-                  <div className="space-y-1">
-                    <label
-                      className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-gray-400"
-                      htmlFor="pay-email"
-                    >
-                      <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                      E-mail
-                    </label>
-                    <input
-                      id="pay-email"
-                      type="email"
-                      autoComplete="email"
-                      placeholder="vous@exemple.com"
-                      className={`${inputBase} border-zinc-200 dark:border-white/15`}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
 
                   <div className="space-y-1">
                     <label className="text-[11px] text-zinc-500 dark:text-gray-400" htmlFor="pay-phone">

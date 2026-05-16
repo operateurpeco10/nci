@@ -41,7 +41,7 @@ export default function VotePackSelector({
         </h3>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
         {VOTE_PACKS.map((pack, index) => {
           const isSelected = selectedPackId === pack.id;
           const isBestValue = pack.label === "Meilleur rapport";

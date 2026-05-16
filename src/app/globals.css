@@ -3,17 +3,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --vote-blue: #3b82f6;
-  --vote-green: #22c55e;
-  --vote-orange: #f97316;
+  --nci-navy: #0b1f3a;
+  --nci-navy-hover: #142d52;
+  --nci-green: #22c55e;
+  --nci-orange: #f97316;
   --cc-border: rgba(24, 24, 27, 0.1);
   --cc-bg: rgba(255, 255, 255, 0.78);
   --cc-hover-border: rgba(24, 24, 27, 0.16);
   --cc-hover-bg: #ffffff;
-  --cc-select-bg: rgba(59, 130, 246, 0.1);
-  --cc-select-shadow: 0 0 36px rgba(59, 130, 246, 0.1);
   --radio-border: rgba(24, 24, 27, 0.22);
-  --glow-mid: rgba(59, 130, 246, 0.22);
+  --glow-mid: rgba(11, 31, 58, 0.2);
   --bar-track-0: rgba(34, 197, 94, 0.14);
   --bar-track-1: rgba(249, 115, 22, 0.14);
 }
@@ -23,16 +22,17 @@ html.dark {
   --cc-bg: rgba(255, 255, 255, 0.02);
   --cc-hover-border: rgba(255, 255, 255, 0.12);
   --cc-hover-bg: rgba(255, 255, 255, 0.04);
-  --cc-select-bg: rgba(59, 130, 246, 0.15);
-  --cc-select-shadow: 0 0 40px rgba(59, 130, 246, 0.06);
   --radio-border: rgba(255, 255, 255, 0.15);
-  --glow-mid: rgba(59, 130, 246, 0.15);
+  --glow-mid: rgba(11, 31, 58, 0.35);
   --bar-track-0: rgba(34, 197, 94, 0.08);
   --bar-track-1: rgba(249, 115, 22, 0.08);
 }
 
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-nci-navy: var(--nci-navy);
+  --color-nci-green: var(--nci-green);
+  --color-nci-orange: var(--nci-orange);
 }
 
 body {
@@ -60,10 +60,27 @@ html.dark body {
   background: var(--cc-hover-bg);
 }
 
-.choice-card.selected {
-  border-color: var(--vote-blue);
-  background: var(--cc-select-bg);
-  box-shadow: var(--cc-select-shadow);
+/* Option 1 : A = vert (Café), B = orange (Thé) */
+.choice-card--cafe.selected {
+  border-color: var(--nci-green);
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: 0 0 36px rgba(34, 197, 94, 0.12);
+}
+
+.choice-card--the.selected {
+  border-color: var(--nci-orange);
+  background: rgba(249, 115, 22, 0.1);
+  box-shadow: 0 0 36px rgba(249, 115, 22, 0.12);
+}
+
+html.dark .choice-card--cafe.selected {
+  background: rgba(34, 197, 94, 0.14);
+  box-shadow: 0 0 40px rgba(34, 197, 94, 0.08);
+}
+
+html.dark .choice-card--the.selected {
+  background: rgba(249, 115, 22, 0.14);
+  box-shadow: 0 0 40px rgba(249, 115, 22, 0.08);
 }
 
 .choice-card .radio-dot {
@@ -75,11 +92,11 @@ html.dark body {
   position: relative;
 }
 
-.choice-card.selected .radio-dot {
-  border-color: var(--vote-blue);
+.choice-card--cafe.selected .radio-dot {
+  border-color: var(--nci-green);
 }
 
-.choice-card.selected .radio-dot::after {
+.choice-card--cafe.selected .radio-dot::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -87,7 +104,24 @@ html.dark body {
   transform: translate(-50%, -50%) scale(1);
   width: 8px;
   height: 8px;
-  background: var(--vote-blue);
+  background: var(--nci-green);
+  border-radius: 50%;
+  animation: dotIn 0.25s ease forwards;
+}
+
+.choice-card--the.selected .radio-dot {
+  border-color: var(--nci-orange);
+}
+
+.choice-card--the.selected .radio-dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 8px;
+  height: 8px;
+  background: var(--nci-orange);
   border-radius: 50%;
   animation: dotIn 0.25s ease forwards;
 }
@@ -105,11 +139,14 @@ html.dark body {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  background: var(--nci-navy);
+  color: #fff;
 }
 
 .vote-btn:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.25);
+  background: var(--nci-navy-hover);
+  box-shadow: 0 8px 30px rgba(11, 31, 58, 0.35);
 }
 
 .vote-btn:not(:disabled):active {
@@ -118,6 +155,14 @@ html.dark body {
 
 .vote-btn:disabled {
   cursor: not-allowed;
+  background: #e4e4e7;
+  color: #a1a1aa;
+}
+
+html.dark .vote-btn:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.2);
+  opacity: 0.15;
 }
 
 .vote-btn .ripple {
@@ -209,18 +254,22 @@ html:not(.dark) .vote-btn .ripple {
   );
 }
 
+.payment-modal-surface .pay-modal-primary {
+  background: var(--nci-navy);
+  color: #fff;
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+}
+
 .payment-modal-surface .pay-modal-primary:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.25);
+  background: var(--nci-navy-hover);
+  box-shadow: 0 8px 30px rgba(11, 31, 58, 0.35);
 }
 
 .payment-modal-surface .pay-modal-primary:not(:disabled):active {
   transform: translateY(0);
-}
-
-.payment-modal-surface .pay-modal-primary {
-  transition:
-    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.2s ease;
 }

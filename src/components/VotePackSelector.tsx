@@ -56,7 +56,7 @@ export default function VotePackSelector({
                 transition={{ delay: index * 0.04 }}
                 className={`choice-card relative flex cursor-pointer flex-col items-center overflow-hidden rounded-lg p-2.5 text-center sm:rounded-xl sm:p-4 ${
                   isSelected ? "selected" : ""
-                } ${isBestValue ? "ring-2 ring-[#3B82F6]/35 dark:ring-[#3B82F6]/30" : ""}`}
+                } ${isBestValue ? "ring-2 ring-[var(--nci-navy)]/35 dark:ring-[var(--nci-navy)]/30" : ""}`}
               >
                 {pack.label && (
                   <div className="absolute right-1 top-1 flex items-center gap-0.5 rounded-full bg-zinc-100/95 px-1 py-0.5 text-[8px] font-semibold text-zinc-700 backdrop-blur-sm dark:bg-black/55 dark:text-white sm:right-2 sm:top-2 sm:gap-1 sm:px-2 sm:py-0.5 sm:text-[10px]">
@@ -66,7 +66,7 @@ export default function VotePackSelector({
                 )}
 
                 {isSelected && (
-                  <div className="absolute left-1/2 top-1.5 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full bg-[#3B82F6] sm:top-2 sm:h-5 sm:w-5">
+                  <div className="absolute left-1/2 top-1.5 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full bg-[var(--nci-navy)] sm:top-2 sm:h-5 sm:w-5">
                     <Check className="h-2.5 w-2.5 text-white sm:h-3 sm:w-3" aria-hidden />
                   </div>
                 )}
@@ -80,12 +80,12 @@ export default function VotePackSelector({
                   </div>
                 </div>
 
-                <div className="text-[11px] font-semibold tabular-nums leading-tight text-[#3B82F6] sm:text-sm">
+                <div className="text-[11px] font-semibold tabular-nums leading-tight text-[var(--nci-navy)] sm:text-sm">
                   {formatPriceFcfa(pack.price_fcfa)}
                 </div>
 
                 {pack.label === "VIP" && (
-                  <div className="mt-2 rounded bg-gradient-to-r from-[#3B82F6] to-[#2563eb] px-2 py-0.5 text-center text-[9px] font-bold uppercase tracking-wide text-white">
+                  <div className="mt-2 rounded bg-gradient-to-r from-[var(--nci-navy)] to-[var(--nci-navy-hover)] px-2 py-0.5 text-center text-[9px] font-bold uppercase tracking-wide text-white">
                     Soutien maximum
                   </div>
                 )}
@@ -154,7 +154,7 @@ export default function VotePackSelector({
       >
         <p className="flex items-start gap-2">
           <Info
-            className={`mt-0.5 h-4 w-4 shrink-0 ${minimal ? "text-[#3B82F6]" : "text-[var(--primary)]"}`}
+            className={`mt-0.5 h-4 w-4 shrink-0 ${minimal ? "text-[var(--nci-navy)]" : "text-[var(--primary)]"}`}
             aria-hidden
           />
           <span>

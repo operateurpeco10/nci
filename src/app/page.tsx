@@ -5,10 +5,13 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const BASE_VOTES = [47, 38] as const;
-const CHOICES = [{ label: "Café" }, { label: "Thé" }] as const;
+const CHOICES = [
+  { label: "Café", accent: "cafe" as const },
+  { label: "Thé", accent: "the" as const },
+] as const;
 const BAR_STYLES = [
-  { color: "#22C55E", trackVar: "--bar-track-0" as const },
-  { color: "#F97316", trackVar: "--bar-track-1" as const },
+  { color: "var(--nci-green)", trackVar: "--bar-track-0" as const },
+  { color: "var(--nci-orange)", trackVar: "--bar-track-1" as const },
 ] as const;
 
 type View = "vote" | "vote_exit" | "results" | "results_exit";
@@ -112,7 +115,7 @@ export default function Home() {
       <header className="w-full border-b border-zinc-200/90 dark:border-white/5">
         <div className="max-w-lg mx-auto px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-2 h-2 shrink-0 rounded-full bg-[#3B82F6]" />
+            <div className="w-2 h-2 shrink-0 rounded-full bg-nci-navy" />
             <span className="text-sm font-semibold tracking-wide text-zinc-800 dark:text-white/80 truncate">
               VoteMinimal
             </span>
@@ -122,7 +125,7 @@ export default function Home() {
             <span className="hidden text-[11px] tracking-wider uppercase text-zinc-500 font-medium dark:text-white/20 sm:inline">
               Sondage live
             </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-nci-green animate-pulse" />
           </div>
         </div>
       </header>
@@ -137,7 +140,7 @@ export default function Home() {
                 <p className="text-base sm:text-lg leading-relaxed text-zinc-600 mb-8 max-w-md mx-auto fade-in fade-in-delay-1 dark:text-white/70">
                   Réponds plusieurs fois à la bonne question et tente de repartir
                   avec{" "}
-                  <span className="font-semibold tabular-nums text-zinc-900 dark:text-white">
+                  <span className="font-semibold tabular-nums text-nci-orange">
                     10&nbsp;000&nbsp;000
                   </span>{" "}
                   de francs.
@@ -158,9 +161,11 @@ export default function Home() {
                     tabIndex={0}
                     onClick={() => selectChoice(i)}
                     onKeyDown={(e) => onChoiceKeyDown(e, i)}
-                    className={`choice-card rounded-xl px-5 py-6 cursor-pointer flex flex-col items-center gap-3 text-center ${selectedChoice === i ? "selected" : ""}`}
+                    className={`choice-card choice-card--${c.accent} rounded-xl px-5 py-6 cursor-pointer flex flex-col items-center gap-3 text-center ${selectedChoice === i ? "selected" : ""}`}
                   >
-                    <span className="text-sm font-bold tracking-wide text-black uppercase dark:text-white">
+                    <span
+                      className={`text-sm font-bold tracking-wide uppercase ${c.accent === "cafe" ? "text-nci-green" : "text-nci-orange"}`}
+                    >
                       {i === 0 ? "A" : "B"}
                     </span>
                     <div className="radio-dot flex-shrink-0" />
@@ -179,7 +184,7 @@ export default function Home() {
                   type="button"
                   disabled={selectedChoice === null}
                   onClick={openPaymentModal}
-                  className="vote-btn w-full py-3.5 rounded-xl bg-[#3B82F6] text-white font-semibold text-sm tracking-wide disabled:transform-none disabled:cursor-not-allowed disabled:bg-zinc-200 disabled:text-zinc-400 dark:disabled:bg-white/10 dark:disabled:text-white/20 dark:disabled:opacity-[0.15]"
+                  className="vote-btn w-full py-3.5 rounded-xl font-semibold text-sm tracking-wide disabled:transform-none"
                 >
                   {ripples.map((r) => (
                     <Ripple key={r.id} size={r.size} />
@@ -249,7 +254,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={resetVote}
-                className="w-full py-3 rounded-xl border border-zinc-200 text-zinc-500 font-medium text-xs tracking-wide transition-all duration-300 hover:border-[#3B82F6]/35 hover:text-zinc-700 dark:border-white/8 dark:text-white/30 dark:hover:border-[#3B82F6]/30 dark:hover:text-white/50"
+                className="w-full py-3 rounded-xl border border-zinc-200 text-zinc-500 font-medium text-xs tracking-wide transition-all duration-300 hover:border-nci-navy/35 hover:text-zinc-700 dark:border-white/8 dark:text-white/30 dark:hover:border-nci-navy/40 dark:hover:text-white/50"
               >
                 Voter à nouveau
               </button>
@@ -268,9 +273,9 @@ export default function Home() {
               Propulsé avec
             </span>
             <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-[#3B82F6]" />
-              <div className="w-2 h-2 rounded-full bg-[#22C55E]" />
-              <div className="w-2 h-2 rounded-full bg-[#F97316]" />
+              <div className="w-2 h-2 rounded-full bg-nci-navy" />
+              <div className="w-2 h-2 rounded-full bg-nci-green" />
+              <div className="w-2 h-2 rounded-full bg-nci-orange" />
             </div>
           </div>
         </div>

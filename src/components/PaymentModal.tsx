@@ -226,7 +226,7 @@ export default function PaymentModal({
   };
 
   const inputBase =
-    "w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-[#3B82F6] dark:border-white/15 dark:bg-black/35 dark:text-white dark:placeholder:text-white/35";
+    "w-full rounded-xl border bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-[var(--nci-navy)] dark:border-white/15 dark:bg-black/35 dark:text-white dark:placeholder:text-white/35";
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4 py-6" role="presentation">
@@ -234,7 +234,7 @@ export default function PaymentModal({
         <div className="space-y-5 p-6">
           <div className="flex items-center justify-between gap-3 border-b border-zinc-200/90 pb-4 dark:border-white/5">
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="h-2 w-2 shrink-0 rounded-full bg-[#3B82F6]" />
+              <div className="h-2 w-2 shrink-0 rounded-full bg-[var(--nci-navy)]" />
               <span className="truncate text-sm font-semibold tracking-wide text-zinc-800 dark:text-white/80">
                 DIGIMA
               </span>
@@ -261,7 +261,7 @@ export default function PaymentModal({
                 <Image src={coupleImage} alt={displayName} fill className="object-cover" sizes="44px" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  <Heart className="h-5 w-5 text-[#3B82F6]" aria-hidden />
+                  <Heart className="h-5 w-5 text-[var(--nci-navy)]" aria-hidden />
                 </div>
               )}
             </div>
@@ -270,7 +270,7 @@ export default function PaymentModal({
                 {paymentStep === 1 ? "Étape 1 / 2 — Pack" : "Étape 2 / 2 — Paiement"}
               </p>
               <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-white">
-                Voter pour <span className="text-[#3B82F6] dark:text-[#60a5fa]">{displayName}</span>
+                Voter pour <span className="text-[var(--nci-navy)] dark:text-[#1e4a7a]">{displayName}</span>
               </h2>
               {displayCode && (
                 <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-white/45">
@@ -302,12 +302,12 @@ export default function PaymentModal({
           >
             <div
               className={`h-1 flex-1 rounded-full transition-colors ${
-                paymentStep === 1 ? "bg-[#3B82F6]" : "bg-[#3B82F6]/40 dark:bg-[#3B82F6]/35"
+                paymentStep === 1 ? "bg-[var(--nci-navy)]" : "bg-[var(--nci-navy)]/40 dark:bg-[var(--nci-navy)]/35"
               }`}
             />
             <div
               className={`h-1 flex-1 rounded-full transition-colors ${
-                paymentStep === 2 ? "bg-[#3B82F6]" : "bg-zinc-200 dark:bg-white/12"
+                paymentStep === 2 ? "bg-[var(--nci-navy)]" : "bg-zinc-200 dark:bg-white/12"
               }`}
             />
           </div>
@@ -340,7 +340,7 @@ export default function PaymentModal({
                     {voteCount.toLocaleString("fr-FR")} vote{voteCount > 1 ? "s" : ""}
                   </p>
                 </div>
-                <div className="flex items-center gap-1 text-xs font-medium text-[#3B82F6] dark:text-[#60a5fa]">
+                <div className="flex items-center gap-1 text-xs font-medium text-[var(--nci-navy)] dark:text-[#1e4a7a]">
                   <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
                   <span>Paystack</span>
                 </div>
@@ -353,7 +353,7 @@ export default function PaymentModal({
                   setError(null);
                   setPaymentStep(2);
                 }}
-                className="pay-modal-primary w-full cursor-pointer rounded-xl bg-[#3B82F6] px-4 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-[0.96] disabled:cursor-not-allowed disabled:opacity-40 dark:disabled:opacity-[0.15]"
+                className="pay-modal-primary w-full cursor-pointer rounded-xl bg-[var(--nci-navy)] px-4 py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-[0.96] disabled:cursor-not-allowed disabled:opacity-40 dark:disabled:opacity-[0.15]"
               >
                 Continuer vers le paiement
               </button>
@@ -379,7 +379,7 @@ export default function PaymentModal({
                     {totalAmount.toLocaleString("fr-FR")} FCFA
                   </span>
                 </span>
-                <span className="ml-auto hidden items-center gap-1 text-[11px] font-medium text-[#3B82F6]/90 dark:text-[#93c5fd]/95 sm:inline-flex">
+                <span className="ml-auto hidden items-center gap-1 text-[11px] font-medium text-[var(--nci-navy)]/90 dark:text-[#4a6fa5]/95 sm:inline-flex">
                   <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
                   Paiement sécurisé
                 </span>
@@ -394,7 +394,7 @@ export default function PaymentModal({
                       type="button"
                       className={`flex cursor-pointer items-center gap-2 rounded-2xl border px-3 py-2.5 text-left text-xs transition-colors ${
                         selectedWallet === wallet.id
-                          ? "border-[#3B82F6] bg-[#3B82F6]/10 dark:border-[#3B82F6]/60 dark:bg-[#3B82F6]/15"
+                          ? "border-[var(--nci-navy)] bg-[var(--nci-navy)]/10 dark:border-[var(--nci-navy)]/60 dark:bg-[var(--nci-navy)]/15"
                           : "border-zinc-200 bg-white hover:bg-zinc-50 dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/10"
                       }`}
                       onClick={() => {
@@ -518,7 +518,7 @@ export default function PaymentModal({
                     type="button"
                     onClick={handleConfirm}
                     disabled={loading || votesClosed || !paystackActive}
-                    className="pay-modal-primary mt-1 w-full cursor-pointer rounded-xl bg-[#3B82F6] py-2.5 text-xs font-semibold text-white hover:opacity-[0.96] disabled:cursor-not-allowed disabled:opacity-45 dark:disabled:opacity-[0.15]"
+                    className="pay-modal-primary mt-1 w-full cursor-pointer rounded-xl bg-[var(--nci-navy)] py-2.5 text-xs font-semibold text-white hover:opacity-[0.96] disabled:cursor-not-allowed disabled:opacity-45 dark:disabled:opacity-[0.15]"
                   >
                     {votesClosed
                       ? "Votes clos"

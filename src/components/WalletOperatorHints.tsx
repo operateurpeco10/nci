@@ -14,7 +14,7 @@ export function WalletOperatorHints({
     case "orange_ci":
       return (
         <div className={hintBox}>
-          <p className="mb-1.5 font-semibold text-[#3B82F6]">Orange Money</p>
+          <p className="mb-1.5 font-semibold text-nci-navy">Orange Money</p>
           <ul className="list-disc space-y-1 pl-4 text-zinc-600 dark:text-gray-300">
             <li>
               Pour obtenir le <strong className="text-zinc-900 dark:text-gray-100">code OTP (4 chiffres)</strong>,
@@ -36,7 +36,7 @@ export function WalletOperatorHints({
     case "mtn_ci":
       return (
         <div className={hintBox}>
-          <p className="mb-1.5 font-semibold text-[#3B82F6]">MTN Mobile Money</p>
+          <p className="mb-1.5 font-semibold text-nci-navy">MTN Mobile Money</p>
           <p className="text-zinc-600 dark:text-gray-300">
             Utilisez <strong className="text-zinc-900 dark:text-gray-100">votre numéro MTN MoMo</strong>. Après
             confirmation, une demande peut s&apos;afficher sur votre téléphone (notification, SMS ou menu USSD / Push) :{" "}
@@ -56,7 +56,7 @@ export function WalletOperatorHints({
     case "moov_ci":
       return (
         <div className={hintBox}>
-          <p className="mb-1.5 font-semibold text-[#3B82F6]">Moov Money</p>
+          <p className="mb-1.5 font-semibold text-nci-navy">Moov Money</p>
           <p className="text-zinc-600 dark:text-gray-300">
             Indiquez le <strong className="text-zinc-900 dark:text-gray-100">numéro Moov</strong> utilisé pour payer.
             Surveillez l&apos;invite USSD ou Push : confirmez avec votre{" "}
@@ -73,7 +73,7 @@ export function WalletOperatorHints({
     case "wave_ci":
       return dvPassActive ? (
         <div className={hintBox}>
-          <p className="mb-1.5 font-semibold text-[#3B82F6]">Wave</p>
+          <p className="mb-1.5 font-semibold text-nci-navy">Wave</p>
           <p className="text-zinc-600 dark:text-gray-300">
             Après confirmation, une{" "}
             <strong className="text-zinc-900 dark:text-gray-100">fenêtre ou l&apos;application Wave</strong>{" "}

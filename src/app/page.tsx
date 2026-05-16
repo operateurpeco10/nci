@@ -115,22 +115,22 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="flex flex-1 items-center justify-center pt-[max(0.5rem,env(safe-area-inset-top))]">
+      <main className="flex min-h-0 flex-1 flex-col items-center justify-start pt-14 sm:justify-center sm:pt-[max(1.75rem,env(safe-area-inset-top))]">
         <div className="mx-auto w-full max-w-lg px-6 py-10 sm:py-12">
           {view === "vote" && (
             <div>
               <div className="text-center">
-                <div className="relative mx-auto mb-6 h-16 w-[min(300px,82vw)] fade-in sm:h-20 sm:w-[min(360px,88vw)]">
+                <div className="relative mx-auto mb-4 h-[5.25rem] w-[min(340px,94vw)] fade-in sm:mb-6 sm:h-20 sm:w-[min(360px,88vw)]">
                   <Image
                     src="/images/logo_nci.png"
                     alt="NCI"
                     fill
                     className="object-contain object-center"
-                    sizes="(max-width: 640px) 82vw, 360px"
+                    sizes="(max-width: 640px) 94vw, 360px"
                     priority
                   />
                 </div>
-                <p className="fade-in fade-in-delay-1 text-base leading-relaxed text-zinc-600 sm:text-lg mb-8 max-w-md mx-auto dark:text-white/70">
+                <p className="fade-in fade-in-delay-1 mx-auto mb-6 max-w-md text-base leading-relaxed text-zinc-600 sm:mb-8 sm:text-lg dark:text-white/70">
                   Réponds plusieurs fois à la bonne question et tente de repartir
                   avec{" "}
                   <span className="font-semibold tabular-nums text-nci-orange">

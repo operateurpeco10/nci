@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { X, ShieldCheck, ChevronLeft } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import VotePackSelector from "./VotePackSelector";
@@ -12,24 +12,28 @@ import { getWalletDvPassFlow, PAYMENT_WALLETS } from "@/lib/paymentWallets";
 import { RESPONSE_COPY, responseUnit } from "@/lib/responseCopy";
 import type { VotePack } from "@/types/digima";
 
-/** Réponse `/api/payment/initiate` — démo locale sans redirection externe */
+type PollPaymentResult =
+  | { ok: true }
+  | { ok: false; error: string }
+  | { ok: false; reason: "wave_popup_closed" };
+
 type InitiateJson = {
   success?: boolean;
-  authorizationUrl?: string;
   error?: string;
-  demo?: boolean;
-  nbVotes?: number;
+  paymentId?: string;
+  status?: string;
+  redirectUrl?: string;
+  failureMessage?: string;
 };
 
 export interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   coupleName?: string;
-  coupleCode?: string;
+  /** Identifiant emplacement choix (`a`, `b`) pour la campagne active */
+  choiceId?: string;
   coupleImage?: string;
-  sharePagePath?: string;
-  /** Appelé après succès en mode démo (`demo: true` sans URL de redirection) — ex. VoteMinimal */
-  onDemoPaymentComplete?: (detail: { nbVotes: number }) => void;
+  onPaymentComplete?: (detail: { nbVotes: number }) => void;
 }
 
 const PAYMENT_LOCALE = "fr";
@@ -59,10 +63,9 @@ export default function PaymentModal({
   isOpen,
   onClose,
   coupleName,
-  coupleCode,
+  choiceId,
   coupleImage,
-  sharePagePath,
-  onDemoPaymentComplete,
+  onPaymentComplete,
 }: PaymentModalProps) {
   const [selectedPack, setSelectedPack] = useState<VotePack>(VOTE_PACKS[0]);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -72,6 +75,7 @@ export default function PaymentModal({
   const [loading, setLoading] = useState(false);
   const [paymentActive, setPaymentActive] = useState(false);
   const [dvPassActive, setDvPassActive] = useState(false);
+  const [paymentBypassWave, setPaymentBypassWave] = useState(false);
   const [votesClosed, setVotesClosed] = useState(false);
   const [paymentStep, setPaymentStep] = useState<1 | 2>(1);
   const [successPayload, setSuccessPayload] = useState<{
@@ -79,11 +83,20 @@ export default function PaymentModal({
     name: string;
   } | null>(null);
   const formSectionRef = useRef<HTMLDivElement>(null);
+  const wavePopupClosedRef = useRef(false);
+  const [pollingState, setPollingState] = useState<{
+    paymentId: string;
+    attempt: number;
+    maxAttempts: number;
+    message: string;
+  } | null>(null);
 
   const totalAmount = selectedPack.price_fcfa;
   const voteCount = selectedPack.votes;
 
   const isOrangeWallet = selectedWallet === "orange_ci";
+  const isWaveWallet = selectedWallet === "wave_ci";
+  const waveBypassActive = paymentBypassWave && isWaveWallet;
   const dvPassFlow = selectedWallet ? getWalletDvPassFlow(selectedWallet) : null;
   const needsOtp =
     dvPassActive && dvPassFlow === "validate"
@@ -103,17 +116,26 @@ export default function PaymentModal({
     setVotesClosed(false);
     fetch("/api/payment/options", { cache: "no-store" })
       .then((r) => r.json())
-      .then((d: { paymentActive?: boolean; votesClosed?: boolean; dvPassActive?: boolean }) => {
-        if (!cancelled) {
-          setPaymentActive(d.paymentActive === true);
-          setDvPassActive(d.dvPassActive === true);
-          setVotesClosed(d.votesClosed === true);
+      .then(
+        (d: {
+          paymentActive?: boolean;
+          votesClosed?: boolean;
+          dvPassActive?: boolean;
+          paymentBypassWave?: boolean;
+        }) => {
+          if (!cancelled) {
+            setPaymentActive(d.paymentActive === true);
+            setDvPassActive(d.dvPassActive === true);
+            setPaymentBypassWave(d.paymentBypassWave === true);
+            setVotesClosed(d.votesClosed === true);
+          }
         }
-      })
+      )
       .catch(() => {
         if (!cancelled) {
           setPaymentActive(false);
           setDvPassActive(false);
+          setPaymentBypassWave(false);
           setVotesClosed(false);
         }
       });
@@ -130,22 +152,105 @@ export default function PaymentModal({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!successPayload || !onDemoPaymentComplete) return;
+    if (!successPayload || !onPaymentComplete) return;
     const timer = window.setTimeout(() => {
-      onDemoPaymentComplete({ nbVotes: successPayload.votes });
+      onPaymentComplete({ nbVotes: successPayload.votes });
       setSuccessPayload(null);
       onClose();
     }, 2500);
     return () => window.clearTimeout(timer);
-  }, [successPayload, onDemoPaymentComplete, onClose]);
+  }, [successPayload, onPaymentComplete, onClose]);
 
   if (!isOpen) return null;
 
-  const displayName = coupleName || "ce couple";
-  const displayCode = coupleCode || "";
+  const displayName = coupleName || "ce joueur";
+  const sleep = (ms: number) =>
+    new Promise<void>((resolve) => {
+      window.setTimeout(resolve, ms);
+    });
 
-  const returnPath =
-    sharePagePath?.trim().startsWith("/") === true ? sharePagePath.trim() : "/";
+  const normalizePaymentStatus = (status: string | undefined) =>
+    (status ?? "").trim().toLowerCase();
+
+  const pollPaymentStatus = async (
+    paymentId: string,
+    maxAttempts: number,
+    intervalMs: number,
+    isWaveFlow: boolean,
+    waveClosedRef: { current: boolean } | null
+  ): Promise<PollPaymentResult> => {
+    const staleClientMs = isWaveFlow ? 140_000 : 88_000;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      if (isWaveFlow && waveClosedRef?.current) {
+        return { ok: false, reason: "wave_popup_closed" };
+      }
+      setPollingState({
+        paymentId,
+        attempt,
+        maxAttempts,
+        message: "Vérification du paiement en cours…",
+      });
+
+      try {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 12000);
+        const res = await fetch(
+          `/api/payment/status?paymentId=${encodeURIComponent(paymentId)}`,
+          { cache: "no-store", signal: controller.signal }
+        ).finally(() => window.clearTimeout(timeout));
+        const payload = (await res.json()) as {
+          success?: boolean;
+          status?: string;
+          error?: string;
+          createdAt?: string;
+          failureMessage?: string;
+        };
+
+        if (payload.success) {
+          const st = normalizePaymentStatus(payload.status);
+          if (st === "completed") return { ok: true };
+          if (st === "failed") {
+            const fromApi =
+              typeof payload.failureMessage === "string" ? payload.failureMessage.trim() : "";
+            return {
+              ok: false,
+              error:
+                fromApi ||
+                "Paiement non abouti. Vérifiez votre compte mobile money puis réessayez.",
+            };
+          }
+          if ((st === "pending" || st === "processing") && payload.createdAt?.trim()) {
+            const createdMs = new Date(payload.createdAt).getTime();
+            if (Number.isFinite(createdMs) && Date.now() - createdMs > staleClientMs) {
+              return {
+                ok: false,
+                error: "Délai dépassé sans confirmation du paiement.",
+              };
+            }
+          }
+        } else if (payload.error) {
+          return { ok: false, error: payload.error };
+        }
+      } catch {
+        /* transient */
+      }
+
+      if (attempt < maxAttempts) await sleep(intervalMs);
+    }
+
+    return {
+      ok: false,
+      error: "Délai dépassé sans confirmation du paiement.",
+    };
+  };
+
+  const openWaveRedirectPopup = (redirectUrl: string) =>
+    window.open(
+      redirectUrl,
+      "WavePayment",
+      "width=520,height=760,scrollbars=yes,resizable=yes,status=yes"
+    );
 
   const handleConfirm = async () => {
     setError(null);
@@ -157,6 +262,11 @@ export default function PaymentModal({
 
     if (!paymentActive) {
       setError("Le paiement en ligne n'est pas encore configuré.");
+      return;
+    }
+
+    if (!choiceId?.trim()) {
+      setError("Choisissez d'abord une réponse.");
       return;
     }
 
@@ -188,13 +298,12 @@ export default function PaymentModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          voteCode: coupleCode,
+          choiceId: choiceId.trim(),
           nbVotes: voteCount,
           packId: selectedPack.id,
           telephoneVotant: phoneNumber.trim(),
           otpCode: needsOtp ? otpCode.trim() || undefined : undefined,
           paiementVia: selectedWallet,
-          returnPath,
           locale: PAYMENT_LOCALE,
         }),
       });
@@ -202,21 +311,82 @@ export default function PaymentModal({
       const data = (await response.json()) as InitiateJson;
 
       if (data.success) {
-        const url =
-          typeof data.authorizationUrl === "string" && data.authorizationUrl.trim().length > 0
-            ? data.authorizationUrl.trim()
-            : null;
-        if (url) {
-          window.location.assign(url);
+        const paymentId =
+          typeof data.paymentId === "string" ? data.paymentId : null;
+        const status =
+          typeof data.status === "string" ? data.status.trim().toLowerCase() : "completed";
+
+        if (status === "failed") {
+          setError(
+            (typeof data.failureMessage === "string" && data.failureMessage.trim()) ||
+              "Paiement refusé. Veuillez réessayer."
+          );
           return;
         }
-        if (data.demo === true && onDemoPaymentComplete) {
-          const n = typeof data.nbVotes === "number" ? data.nbVotes : voteCount;
-          setSuccessPayload({ votes: n, name: displayName });
-          setLoading(false);
-          return;
+
+        if ((status === "pending" || status === "processing") && paymentId) {
+          let wavePopup: Window | null = null;
+          if (isWaveWallet) {
+            const redirectUrl =
+              typeof data.redirectUrl === "string" && data.redirectUrl.trim().length > 0
+                ? data.redirectUrl.trim()
+                : null;
+            if (!redirectUrl) {
+              setError("URL de paiement Wave manquante.");
+              return;
+            }
+            wavePopup = openWaveRedirectPopup(redirectUrl);
+            if (!wavePopup) {
+              setError("Autorisez les popups pour finaliser le paiement Wave.");
+              return;
+            }
+          }
+
+          let waveCloseWatch: ReturnType<typeof setInterval> | undefined;
+          if (isWaveWallet && wavePopup) {
+            wavePopupClosedRef.current = false;
+            waveCloseWatch = setInterval(() => {
+              try {
+                if (wavePopup?.closed) wavePopupClosedRef.current = true;
+              } catch {
+                wavePopupClosedRef.current = true;
+              }
+            }, 600);
+          }
+
+          let pollResult: PollPaymentResult;
+          try {
+            pollResult = await pollPaymentStatus(
+              paymentId,
+              isWaveWallet ? 45 : 24,
+              isWaveWallet ? 3000 : 4000,
+              isWaveWallet,
+              isWaveWallet ? wavePopupClosedRef : null
+            );
+          } finally {
+            if (waveCloseWatch) clearInterval(waveCloseWatch);
+          }
+          setPollingState(null);
+
+          if (wavePopup && !wavePopup.closed) {
+            try {
+              wavePopup.close();
+            } catch {
+              /* ignore */
+            }
+          }
+
+          if (!pollResult.ok) {
+            if ("reason" in pollResult && pollResult.reason === "wave_popup_closed") {
+              setError("Paiement Wave interrompu. Vérifiez si le débit est passé avant de réessayer.");
+            } else {
+              setError("error" in pollResult ? pollResult.error : "Paiement non confirmé.");
+            }
+            return;
+          }
         }
-        setError("Réponse de paiement incomplète (URL manquante).");
+
+        setSuccessPayload({ votes: voteCount, name: displayName });
       } else {
         setError(data.error || "Erreur lors du paiement");
       }
@@ -241,6 +411,35 @@ export default function PaymentModal({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4 py-6" role="presentation">
       <div className="payment-modal-surface relative max-h-[92vh] w-full max-w-lg overflow-y-auto overflow-x-hidden rounded-2xl border border-zinc-200/90 bg-zinc-50 shadow-xl dark:border-white/5 dark:bg-[var(--dark-surface-bg)] lg:max-w-xl">
         <AnimatePresence>
+          {pollingState && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[85] flex items-center justify-center bg-black/55 px-4"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-full max-w-sm rounded-2xl border border-zinc-200/90 bg-white p-5 text-center shadow-xl dark:border-white/15 dark:bg-[var(--dark-surface-bg)]"
+              >
+                <motion.div
+                  className="mx-auto mb-3 h-7 w-7 rounded-full border-2 border-zinc-200 border-t-[var(--nci-navy)] dark:border-white/20 dark:border-t-[#5b9de0]"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white">
+                  Paiement en cours de validation
+                </p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-gray-400">
+                  {pollingState.message}
+                </p>
+                <p className="mt-2 text-[11px] text-zinc-400">
+                  {pollingState.attempt}/{pollingState.maxAttempts}
+                </p>
+              </motion.div>
+            </motion.div>
+          )}
           {successPayload && (
             <VoteSuccessOverlay votes={successPayload.votes} name={successPayload.name} />
           )}
@@ -287,11 +486,6 @@ export default function PaymentModal({
                 {RESPONSE_COPY.modalHeadingPrefix}{" "}
                 <span className="text-[var(--nci-navy)] dark:text-[#5b9de0]">{displayName}</span>
               </h2>
-              {displayCode && (
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-white/45">
-                  {displayCode}
-                </p>
-              )}
             </div>
           </div>
 
@@ -355,6 +549,15 @@ export default function PaymentModal({
 
           {paymentStep === 2 && (
             <>
+              {waveBypassActive && (
+                <p
+                  role="status"
+                  className="rounded-xl border border-amber-200/90 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100"
+                >
+                  Mode test Wave : aucun débit réel (PAYMENT_BYPASS_WAVE). Les réponses seront
+                  créditées dans Supabase.
+                </p>
+              )}
               <div
                 className={`flex flex-wrap items-center gap-2 ${votesClosed ? "pointer-events-none opacity-45" : ""}`}
               >

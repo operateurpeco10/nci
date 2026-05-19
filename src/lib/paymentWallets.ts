@@ -16,17 +16,5 @@ export const PAYMENT_WALLETS = [
 
 export type PaymentWalletId = (typeof PAYMENT_WALLETS)[number]["id"];
 
-/** Comportement agrégateur (réf. voting-nestor) — simplifié pour la démo */
-export function getWalletDvPassFlow(walletId: string): "validate" | "push" | null {
-  switch (walletId) {
-    case "orange_ci":
-    case "mtn_ci":
-    case "moov_ci":
-      return "validate";
-    case "wave_ci":
-      return "push";
-    default:
-      return null;
-  }
-}
+export { getWalletDvPassFlow } from "@/lib/dvpass/walletMeta";
 

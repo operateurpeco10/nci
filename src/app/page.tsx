@@ -7,9 +7,11 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const BASE_VOTES = [47, 38] as const;
+const QUESTION =
+  "Quel joueur n'a pas été sélectionné pour le mondial ?";
 const CHOICES = [
-  { label: "Café", accent: "cafe" as const },
-  { label: "Thé", accent: "the" as const },
+  { label: "Martial Godo", accent: "cafe" as const },
+  { label: "Oumar Diakité", accent: "the" as const },
 ] as const;
 const BAR_STYLES = [
   { color: "var(--nci-green)", trackVar: "--bar-track-0" as const },
@@ -116,7 +118,7 @@ export default function Home() {
       </div>
 
       <main className="flex min-h-0 flex-1 flex-col items-center justify-start pt-14 sm:justify-center sm:pt-[max(1.75rem,env(safe-area-inset-top))]">
-        <div className="mx-auto w-full max-w-lg px-6 py-10 sm:py-12">
+        <div className="mx-auto w-full max-w-lg px-6 py-10 sm:max-w-2xl sm:py-12">
           {view === "vote" && (
             <div>
               <div className="text-center">
@@ -130,18 +132,18 @@ export default function Home() {
                     priority
                   />
                 </div>
-                <div className="fade-in fade-in-delay-1 mx-auto mb-6 max-w-md space-y-3 text-center sm:mb-8">
-                  <p className="text-sm font-medium leading-snug text-zinc-600 sm:text-base dark:text-white/75">
+                <div className="fade-in fade-in-delay-1 mx-auto mb-6 max-w-md space-y-3 text-center sm:mb-8 sm:max-w-none sm:w-full">
+                  <p className="text-base font-medium leading-snug text-zinc-600 sm:text-lg sm:whitespace-nowrap dark:text-white/75">
                     Question de la semaine sur NCI.
                   </p>
-                  <p className="acroche-blink text-xl font-semibold leading-snug text-zinc-800 sm:text-2xl dark:text-white/90">
+                  <p className="acroche-blink text-3xl font-semibold leading-snug text-zinc-800 sm:text-4xl sm:whitespace-nowrap dark:text-white/90">
                     <span className="font-semibold text-nci-orange">10&nbsp;MILLIONS</span>
                     {" "}
                     à se partager.
                   </p>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-semibold leading-snug tracking-tight text-zinc-900 fade-in fade-in-delay-2 dark:text-white/90">
-                  Café ou Thé ?
+                <h1 className="text-xl sm:text-2xl font-semibold leading-snug tracking-tight text-zinc-900 fade-in fade-in-delay-2 dark:text-white/90">
+                  {QUESTION}
                 </h1>
               </div>
 

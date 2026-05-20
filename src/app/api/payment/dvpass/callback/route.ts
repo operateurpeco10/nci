@@ -14,6 +14,23 @@ import {
 } from "@/lib/payment/paymentFailureMeta";
 
 function redirectHome(request: Request, query: Record<string, string>) {
+  if (query.payment === "ok" && query.paymentId) {
+    const u = new URL("/vote/success", request.url);
+    u.searchParams.set("paymentId", query.paymentId);
+    return NextResponse.redirect(u);
+  }
+
+  const failId = query.paymentId?.trim();
+  if (query.payment === "error" && failId) {
+    const u = new URL("/vote/failure", request.url);
+    u.searchParams.set("paymentId", failId);
+    for (const [k, v] of Object.entries(query)) {
+      if (k === "payment" || k === "paymentId" || !v) continue;
+      u.searchParams.set(k, v);
+    }
+    return NextResponse.redirect(u);
+  }
+
   const u = new URL("/", request.url);
   for (const [k, v] of Object.entries(query)) {
     if (v) u.searchParams.set(k, v);

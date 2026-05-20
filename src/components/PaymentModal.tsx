@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ShieldCheck, ChevronLeft } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import VotePackSelector from "./VotePackSelector";
 import { VoteSuccessOverlay } from "./VoteSuccessOverlay";
 import { WalletOperatorHints } from "./WalletOperatorHints";
@@ -84,6 +85,7 @@ export default function PaymentModal({
   } | null>(null);
   const formSectionRef = useRef<HTMLDivElement>(null);
   const wavePopupClosedRef = useRef(false);
+  const router = useRouter();
   const [pollingState, setPollingState] = useState<{
     paymentId: string;
     attempt: number;
@@ -252,6 +254,39 @@ export default function PaymentModal({
       "width=520,height=760,scrollbars=yes,resizable=yes,status=yes"
     );
 
+  /** Fermeture popup Wave : double lecture statut puis page succès ou échec (comme voting-nestor). */
+  const resolveWaveAfterPopupClosed = async (paymentId: string) => {
+    const readStatus = async (): Promise<string | null> => {
+      try {
+        const res = await fetch(
+          `/api/payment/status?paymentId=${encodeURIComponent(paymentId)}`,
+          { cache: "no-store" }
+        );
+        const j = (await res.json()) as { success?: boolean; status?: string };
+        if (!j.success) return null;
+        return typeof j.status === "string" ? j.status.trim().toLowerCase() : null;
+      } catch {
+        return null;
+      }
+    };
+
+    onClose();
+    let st = await readStatus();
+    if (st === "completed") {
+      router.push(`/vote/success?paymentId=${encodeURIComponent(paymentId)}`);
+      return;
+    }
+    await sleep(550);
+    st = await readStatus();
+    if (st === "completed") {
+      router.push(`/vote/success?paymentId=${encodeURIComponent(paymentId)}`);
+      return;
+    }
+    router.push(
+      `/vote/failure?paymentId=${encodeURIComponent(paymentId)}&reason=popup_closed`
+    );
+  };
+
   const handleConfirm = async () => {
     setError(null);
 
@@ -376,12 +411,19 @@ export default function PaymentModal({
             }
           }
 
-          if (!pollResult.ok) {
-            if ("reason" in pollResult && pollResult.reason === "wave_popup_closed") {
-              setError("Paiement Wave interrompu. Vérifiez si le débit est passé avant de réessayer.");
-            } else {
-              setError("error" in pollResult ? pollResult.error : "Paiement non confirmé.");
+          if (!pollResult.ok && "reason" in pollResult && pollResult.reason === "wave_popup_closed") {
+            try {
+              if (wavePopup && !wavePopup.closed) wavePopup.close();
+            } catch {
+              /* ignore */
             }
+            setLoading(false);
+            await resolveWaveAfterPopupClosed(paymentId);
+            return;
+          }
+
+          if (!pollResult.ok) {
+            setError("error" in pollResult ? pollResult.error : "Paiement non confirmé.");
             return;
           }
         }

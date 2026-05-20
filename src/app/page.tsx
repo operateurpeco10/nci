@@ -57,18 +57,6 @@ export default function Home() {
     void loadPoll();
   }, [loadPoll]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("payment") === "ok") {
-      setView("results");
-      void loadPoll();
-      const u = new URL(window.location.href);
-      u.searchParams.delete("payment");
-      u.searchParams.delete("paymentId");
-      window.history.replaceState({}, "", u.pathname + u.search);
-    }
-  }, [loadPoll]);
-
   const totals = useMemo(
     () => pollChoices.map((c) => c.votes),
     [pollChoices]
